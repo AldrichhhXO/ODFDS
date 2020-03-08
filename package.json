@@ -1,0 +1,40 @@
+{
+  "name": "odfds",
+  "version": "1.0.0",
+  "description": "On-Demand Food Delivery Service System",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "devstart": "nodemon ./bin/www"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jjun44/ODFDS.git"
+  },
+  "author": "Jaeho Jun, Aldrich Reboja, Yinjie Liu, Dev Patel, Han Qiu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jjun44/ODFDS/issues"
+  },
+  "homepage": "https://github.com/jjun44/ODFDS#readme",
+  "dependencies": {
+    "@google/maps": "^0.5.5",
+    "consolidate": "^0.15.1",
+    "cookie-parser": "^1.4.4",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.16.4",
+    "express-session": "^1.16.1",
+    "http": "0.0.0",
+    "http-errors": "^1.7.2",
+    "morgan": "^1.9.1",
+    "mysql": "^2.16.0",
+    "socket.io": "^2.2.0",
+    "swig": "^1.4.2",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.18.11"
+  }
+}

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Restaurant Request</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="images/icons/favicon.ico"/>
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/bootstrap/css/bootstrap.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="fonts/font-awesome-4.7.0/css/font-awesome.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="fonts/Linearicons-Free-v1.0.0/icon-font.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="fonts/iconic/css/material-design-iconic-font.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/animate/animate.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/css-hamburgers/hamburgers.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/animsition/css/animsition.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/select2/select2.min.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="vendor/daterangepicker/daterangepicker.css">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="css/util.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <!--===============================================================================================-->
+    <style>
+        /* Always set the map height explicitly to define the size of the div
+         * element that contains the map. */
+        #map {
+            height: 100%;
+            width: 100%
+        }
+        /* Optional: Makes the sample page fill the window. */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: Arial;
+            color: white;
+        }
+        .split {
+            height: 100%;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            overflow-x: hidden;
+            padding-top: 0px;
+        }
+        .left {
+            width: 65%;
+            left: 0;
+            background-color: #111;
+        }
+        .right {
+            width: 35%;
+            right: 0;
+            background-color: white;
+        }
+        .centered {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .centered img {
+            width: 150px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body style="background-color: #999999;">
+<div class="split left">
+    <div id="map"></div>
+    <script>
+    /** Initialize the map with the restaurant's location info. **/
+    function initMap() {
+      const directionsService = new google.maps.DirectionsService;
+      const directionsDisplay = new google.maps.DirectionsRenderer;
+      // Get start and location info loaded from the database from the html page.
+      const start = document.getElementById('start').innerHTML;
+      const latitude = parseFloat(document.getElementById('lat').innerHTML);
+      const longitude = parseFloat(document.getElementById('lng').innerHTML);
+      // Set map option and marker.
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 20,
+        center: { lat: latitude, lng: longitude }
+      });
+      var marker = new google.maps.Marker({
+          position: { lat: latitude, lng: longitude },
+          map: map
+      });
+      directionsDisplay.setMap(map);
+      // When button clicked, show route from start to end.
+      var onChangeHandler = function() {
+        // Initialize results in the last search.
+        document.getElementById("msg").innerHTML = '';
+        document.getElementById("routeInfo").style.visibility = 'hidden';
+        document.getElementById("findingDriver").style.visibility = 'hidden';
+        document.getElementById("driverInfo").style.visibility = 'hidden';
+        document.getElementById("waitMsg").innerHTML = 'Finding a driver ...';
+        displayRoute(directionsService, directionsDisplay);
+      };
+      // Event listener for the request button.
+      document.getElementById('request').addEventListener('click', onChangeHandler);
+    }
+    /** Display route from start to end on Map. */
+    function displayRoute(directionsService, directionsDisplay) {
+      var request = {
+        origin: document.getElementById('start').innerHTML,
+        destination: document.getElementById('destination').value,
+        travelMode: 'DRIVING',
+        drivingOptions: {
+          departureTime: new Date(Date.now()), // required for driving Option
+          trafficModel: 'bestguess' // calculate estimated time based on live traffic
+        }
+      };
+      directionsService.route(request, function(result, status) {
+        if (status == 'OK') {
+          directionsDisplay.setDirections(result);
+        } else {
+          window.alert('Directions request failed due to ' + status);
+        }
+      });
+    }
+    </script>
+    <script asyn defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBdB1kiL0pp6mB4jv_yqs0q9Oiuett2cbs&callback=initMap">
+    </script>
+    <!-- Server will send the order and nearest driver information to the user dynamically -->
+    <script src = "/socket.io/socket.io.js"></script>
+    <script>
+    var socket = io();
+    /** Receives a message from the server. */
+    socket.on('msg', function(data) {
+      document.getElementById("msg").innerHTML = data.msg;
+      document.getElementById("findingDriver").style.visibility = 'hidden';
+    });
+    function getResult() {
+      document.getElementById("msg").innerHTML = '';
+      /** Sends restaurnt ID to the server. */
+      socket.emit('saveUserInfo', 'R', document.getElementById('rID').innerHTML);
+      /** Receives order infomration from the server. */
+      socket.on('orderInfoToR', function(data) {
+        document.getElementById("routeInfo").style.visibility = 'visible';
+        document.getElementById("findingDriver").style.visibility = 'visible';
+        document.getElementById("dest").innerHTML = document.getElementById('destination').value;
+        document.getElementById("distance").innerHTML = data.distance;
+        document.getElementById("time").innerHTML = data.duration;
+        document.getElementById("price").innerHTML = '$' + data.price;
+      });
+      /** Receives order ID from the server.  */
+      socket.on('orderID', function(data) {
+        document.getElementById("orderID").innerHTML = data.orderID;
+      });
+      /** Receives driver infomration from the server.  */
+      socket.on('driverInfo', function(data){
+        document.getElementById("waitMsg").innerHTML = 'Driver Found!';
+        document.getElementById("driverInfo").style.visibility = 'visible';
+        document.getElementById("dName").innerHTML = data.dName;
+        document.getElementById("dPhone").innerHTML = data.dPhone;
+        document.getElementById("dDistance").innerHTML = data.distance;
+        document.getElementById("arrivesIn").innerHTML = data.arrivesIn;
+      });
+    }
+    </script>
+</div>
+<div class="split right">
+  <div class="wrap-login100 p-l-60 p-r-50 p-t-32 p-b-50">
+        <form class="login100-form validate-form" method="post">
+					<span class="login100-form-title p-b-30">
+						Request a Driver
+					</span>
+            <br><br><br>
+            <p id="msg" style="padding-bottom:10px;"></p>
+            <div class="wrap-input100 validate-input" data-validate="Destination is required">
+                <span class="label-input100">Enter the Destination:</span>
+                <input class="input100" type="text" id="destination" name="destination" placeholder="Destination...">
+                <span class="focus-input100"></span>
+            </div>
+            <div class="container-login100-form-btn">
+                <div class="wrap-login100-form-btn">
+                    <div class="login100-form-bgbtn"></div>
+                    <button id="request" class="login100-form-btn" onclick="getResult()">
+                        Request
+                    </button>
+                </div>
+            </div>
+		<br><br><br>
+            <div id="routeInfo" style="visibility:hidden; margin-top:20px; padding-top:30px; padding-bottom:30px;" class="jumbotron">
+              <h3 class="display-6" style="color:#1C2833">Restaurant ID: <span id="rID">{{rID}}</span></h3>
+              <hr class="my-4">
+              <h4 class="display-8" style="color:#1C2833">Route</h4>
+              <p class="lead">Restaurant: <span id="start">{{start}}</span></p>
+              <p class="lead">Destination: <span id="dest"></span> </p>
+              <p class="lead">Distance: <span id="distance"></span></p>
+              <p class="lead">Estimated Time: <span id="time"></span></p>
+              <p class="lead">Price: <span id="price"></span></p>
+              <hr class="my-4"></div>
+            <div id="findingDriver" style="visibility:hidden; margin-top:10px; padding:30px 50px 30px 50px;" class="jumbotron">
+              <h4 id="waitMsg" class="display-8" style="color:#1C2833">Finding a driver ...</h4>
+              <hr class="my-4">
+              <div id="driverInfo" style="visibility:hidden;">
+              <h3 class="display-6" style="color:#1C2833">Order ID: <span id="orderID"></span></h3>
+              <hr class="my-4">
+              <h4 class="display-8" style="color:#1C2833">Driver Information</h4>
+              <p class="lead">Name: <span id="dName"></span></p>
+              <p class="lead">Phone: <span id="dPhone"></span></p>
+              <p class="lead">How far away: <span id="dDistance"></span></p>
+              <p class="lead">Arrives in: <span id="arrivesIn"></span></p>
+              <hr class="my-4"></div></div>
+        </form>
+        <p style="visibility:hidden;"><span id="lat">{{lat}}</span><span id="lng">{{lng}}</span></p>
+      </div>
+</div>
+<!--===============================================================================================-->
+<script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/animsition/js/animsition.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/bootstrap/js/popper.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/select2/select2.min.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/daterangepicker/moment.min.js"></script>
+<script src="vendor/daterangepicker/daterangepicker.js"></script>
+<!--===============================================================================================-->
+<script src="vendor/countdowntime/countdowntime.js"></script>
+<!--===============================================================================================-->
+<script src="js/main.js"></script>
+</body>
+</html>
