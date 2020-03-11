@@ -12,8 +12,8 @@ let driverRouter = require('./routes/driverRouter');
 let cons = require('consolidate');
 let app = express();
 
-let dotenv = require('dotenv').config();
-
+let dotenv = require('dotenv');
+dotenv.config();
 
 // View engine setup (use html).
 app.engine('html', cons.swig);

@@ -7,21 +7,24 @@
  */
 
 const mysql = require('mysql'); // Import mysql package.
-var db;
+const dotenv = require('dotenv').config();
+let db;
 /** Connects to the database. */
 function connectDatabase() {
     if (!db) {
+
+        
         db = mysql.createConnection({
             host: process.env.DB_ENDPOINT || "localhost",
             user: process.env.DB_USER || "g3",
-            password: process.env.PASSWORD || "cs160G3!",
+            password: process.env.DB_PASSWORD || "cs160G3!",
             database: process.env.DATABASE ||'ODFDS'
         });
         db.connect(function(err){
             if(!err) {
                 console.log('Database is connected!');
             } else {
-                console.log('Error connecting database!');
+                console.log(err);
             }
         });
     }
