@@ -18,14 +18,16 @@
 
 ## Authenticated Routes
 
-#### Driver Side REST APIs
+#### Driver Side REST APIs (/driver)
 
+    /driver - Driver Dashboard
     /delivery - Page where Deliveries can be accepted and viewed on Map.
     /deliveryInfo - Delivery info of the current orders
     /dHistory - History of the driver's order history.
 
-### Restaurant Side REST APIs
+### Restaurant Side REST APIs (/rest)
 
+    /rest - Restaurant Dashboard
     /request - Allows restaurants to place an order that a driver can pick choose to accept/decline in their '/Delivery' Page.
     /track - Page that tracks current orders.
     /rHistory - Displays the restaurant's order history.
