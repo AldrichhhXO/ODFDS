@@ -12,8 +12,6 @@ let db;
 /** Connects to the database. */
 function connectDatabase() {
     if (!db) {
-
-        
         db = mysql.createConnection({
             host: process.env.DB_ENDPOINT || "localhost",
             user: process.env.DB_USER || "g3",

@@ -214,7 +214,10 @@ module.exports.addUser = function (req, res) {
 
     const val = [email]
     conn.query(eQuery, val, function(err, result) {
-      if (err) {console.log("Error finding email");}
+      if (err) {
+        //console.log("Error finding email");
+        console.log('ERROR: ', err);
+      }
       else if (result.length != 0) {
         errorMessage = "Error: Email Exists";
         console.log("Email Already Exists \n");
