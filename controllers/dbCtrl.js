@@ -18,13 +18,18 @@ function connectDatabase() {
             password: process.env.DB_PASSWORD || "cs160G3!",
             database: process.env.DATABASE ||'ODFDS'
         });
-        db.connect(function(err){
+        db.connect((err) => {
             if(!err) {
                 console.log('Database is connected!');
             } else {
                 console.log(err);
             }
         });
+        db.on('error', (err) => {
+            if (err.fatal) {
+                console.trace();
+            }
+        })
     }
     return db;
 }

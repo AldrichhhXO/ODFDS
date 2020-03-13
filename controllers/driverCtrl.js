@@ -204,7 +204,7 @@ module.exports.addUser = function (req, res) {
       Note: Done.
 
     **/
-    function validateEmail() {
+    const validateEmail = () => {
 
 
         // Email Checking; check for email in the db
@@ -213,7 +213,7 @@ module.exports.addUser = function (req, res) {
             where Email = ?'
 
     const val = [email]
-    conn.query(eQuery, val, function(err, result) {
+    conn.query(eQuery, val, (err, result) => {
       if (err) {
         //console.log("Error finding email");
         console.log('ERROR: ', err);
@@ -246,7 +246,7 @@ module.exports.addUser = function (req, res) {
       This method will be responsible for validatig each field in the signup page.
 
     **/
-    function validateEntries() {
+    const validateEntries = () => {
     // Password Checking
     if (pwd.length < 4) {
       console.log("Invalid Pasword \n");
